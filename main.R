@@ -16,23 +16,27 @@ trial_data <- read.csv("y_maze_trial_data.csv") %>%
       format="%m/%d/%Y %I:%M:%S %p"
       ),
     
+    # convert durations/times to number of seconds
     latency = period_to_seconds(ms(latency)),
     left_time = period_to_seconds(ms(left_time)),
     right_time = period_to_seconds(ms(right_time)),
     
-    # add starvation duration col
-    # chose_treatment col (first choice == trt_arm)
-    # add total arm visits col?
-    # add total time in arms col?
-    # add trt_time and comtrol_time cols? then remove L/R cols?
-    # add preference time col? trt_time - control_time
-    # preference ratio col? trt_time / control_time
-    # visitation ratio col? trt visits / total visits
-    # add unique ID col?
+    # add new columns for analysis
+    starvation_duration_hrs = as.numeric(trial_start - starving_start),
+    chose_trt = first_choice == trt_arm,
+    
+    # replace L/R columns with trt_ctrl
+    trt_visits = ifelse(trt_arm == "L", left_visits, right_visits),
+    ctrl_visits = ifelse(trt_arm == "R", left_visits, right_visits),
+    trt_time_secs = ifelse(trt_arm == "L", left_time, right_time),
+    ctrl_time_secs = ifelse(trt_arm == "R", left_time, right_time)
   ) %>%
-  select(-start_date, -starving_since, -start_time) %>% # no longer needed because of above datetime conversions
+  # remove replaced columns
+  select(-start_date, -starving_since, -start_time, -(left_visits:right_time)) 
+
+trial_data <- trial_data[order(trial_data$trial_start),] %>% tibble::rowid_to_column("trial_ID")
 
 exclusion_rate <- mean(trial_data$is_excluded)
 trial_data <- trial_data %>% filter(!is_excluded)
 
-# ==================== next step ====================
+prop_chose_trt = mean(trial_data$chose_trt)
