@@ -1,0 +1,16 @@
+start_date,cage_id,species,batch_id,starving_since,temp,start_time,trt_arm,first_choice,latency,left_visits,right_visits,left_time,right_time,is_excluded,notes
+6/24/2026,1,Apis mellifera,1A,9:30:00 AM,20.3,12:30:00 PM,R,R,0:10,11,14,3:35,9:44,FALSE,
+6/24/2026,1,Apis mellifera,1A,9:30:00 AM,19.9,12:55:00 PM,L,L,0:47,2,2,3:46,10:32,FALSE,
+6/24/2026,1,Apis mellifera,1A,9:30:00 AM,19.9,1:30:00 PM,R,R,0:09,31,26,6:35,5:00,FALSE,
+6/24/2026,1,Apis mellifera,1A,9:30:00 AM,20,2:00:00 PM,L,L,0:07,12,9,7:12,6:34,FALSE,
+6/24/2026,1,Apis mellifera,1A,9:30:00 AM,20.1,2:35:00 PM,R,L,2:05,1,1,4:18,5:52,FALSE,sluggish. near death
+6/24/2026,2,Apis mellifera,1B,1:00:00 PM,20.2,4:00:00 PM,L,L,0:10,6,5,6:37,8:03,FALSE,
+6/24/2026,2,Apis mellifera,1B,1:00:00 PM,19.9,4:30:00 PM,R,R,0:25,3,5,5:57,7:05,FALSE,
+6/24/2026,2,Apis mellifera,1B,1:00:00 PM,20,5:00:00 PM,L,L,0:28,1,1,0:11,14:20,FALSE,
+6/24/2026,2,Apis mellifera,1B,1:00:00 PM,19.9,5:30:00 PM,R,R,0:11,4,4,10:04,4:01,FALSE,
+6/24/2026,2,Apis mellifera,1B,1:00:00 PM,20,6:00:00 PM,L,R,0:40,4,6,8:46,5:51,FALSE,
+6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.4,11:50:00 AM,R,R,0:19,5,5,10:16,4:22,FALSE,Room cleaned this morning - may effect background smells and agitation
+6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.6,12:20:00 PM,L,L,0:39,3,1,5:58,4:18,FALSE,
+6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.7,12:50:00 PM,R,L,0:14,10,10,8:08,5:05,FALSE,
+6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.7,1:20:00 PM,L,L,0:19,5,3,7:52,6:04,FALSE,
+6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.8,1:55:00 PM,R,L,0:55,8,8,6:58,5:03,FALSE,
