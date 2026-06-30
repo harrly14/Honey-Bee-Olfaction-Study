@@ -13,4 +13,9 @@ start_date,cage_id,species,batch_id,starving_since,temp,start_time,trt_arm,first
 6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.6,12:20:00 PM,L,L,0:39,3,1,5:58,4:18,FALSE,
 6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.7,12:50:00 PM,R,L,0:14,10,10,8:08,5:05,FALSE,
 6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.7,1:20:00 PM,L,L,0:19,5,3,7:52,6:04,FALSE,
-6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.8,1:55:00 PM,R,L,0:55,8,8,6:58,5:03,FALSE,
+6/25/2026,3,Apis mellifera,2A,8:50:00 AM,19.8,1:55:00 PM,R,L,0:55,8,8,6:58,5:03,FALSE,Possible light confound
+6/30/2026,1,Apis mellifera,3A,8:30:00 AM,21.3,11:30:00 AM,R,L,0:04,20,25,2:10,10:41,FALSE,Possible light confound
+6/30/2026,1,Apis mellifera,3A,8:30:00 AM,22,1:00:00 PM,L,R,0:08,9,11,6:45,5:00,FALSE,Possible light confound
+6/30/2026,1,Apis mellifera,3A,8:30:00 AM,21.9,1:30:00 PM,R,R,0:20,4,6,3:49,5:15,FALSE,Possible light confound
+6/30/2026,1,Apis mellifera,3A,8:30:00 AM,22.1,2:00:00 PM,L,R,0:20,22,20,5:07,5:10,FALSE,Possible light confound
+6/30/2026,1,Apis mellifera,3A,8:30:00 AM,22.2,2:30:00 PM,R,L,0:10,5,4,11:38,2:16,FALSE,Possible light confound
