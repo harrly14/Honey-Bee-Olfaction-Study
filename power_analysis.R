@@ -5,7 +5,7 @@ library(pwrss)
 # => is p > .5 (p = probability bees choose salty nectar)
 # => this is a one-sample binomial test
 # key decisions: 
-  # this test will be on-sided because the literature shows no evidence of bees avoiding salry nectar, so I do not think it is plausible for bees to choose the control MORE than the treatment
+  # this test will be one-sided because the literature shows no evidence of bees avoiding salty nectar, so I do not think it is plausible for bees to choose the control MORE than the treatment
   # i'm leaving power at 0.80 as a default number. while salting out may be subtle chemically, the effect on behavior should not be subtle, so the larger sample size a higher power value would require is not worth it
   # I'm using 0.65 as the expected probability, but this number is not founded in anything other than 1) a desire to see more subtle (closer to average) choice differences and 2) setting a number that allows me to collect a manageable amount of bees
 expected_prob <- 0.60

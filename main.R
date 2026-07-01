@@ -42,15 +42,17 @@ trial_data <- trial_data %>% filter(!is_excluded)
 
 prop_chose_trt = mean(trial_data$chose_trt)
 
+binom.test
 
 
+# ========== random stuff  ==========
 arm_times <- data.frame(
   time_secs = c(trial_data$trt_time_secs, trial_data$ctrl_time_secs),
   group = c(rep("Treatment", nrow(trial_data)),
             rep("Control", nrow(trial_data)))
 )
 
-arm_times <- (lm(time_secs ~ group, arm_times))
+arm_times.lm <- (lm(time_secs ~ group, arm_times))
 
 arm_visits <- data.frame(
   visit_num = c(trial_data$trt_visits, trial_data$ctrl_visits),
@@ -58,5 +60,5 @@ arm_visits <- data.frame(
             rep("Control", nrow(trial_data)))
 )
 
-arm_visit_model <- (lm(visit_num ~ group, arm_visits))
+arm_visit.lm <- (lm(visit_num ~ group, arm_visits))
 
