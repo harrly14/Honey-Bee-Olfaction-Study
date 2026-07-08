@@ -137,6 +137,17 @@ Anova(preference_model, type = "II")
 check_collinearity(preference_model)
 check_model(preference_model)
 
+library(MuMIn)
+dredge(preference_model)
+preference_model.dredge <- glmer(
+  chose_trt ~ 1 + 
+    (1 | batch_id) + (1 | location),  
+  data = trial_data, family = binomial, na.action = "na.fail"
+)
+summary(preference_model.dredge)
+plogis(0.1478) # this is the back transformed preference
+check_model(preference_model.dredge)
+
 library(glmmTMB)
 
 trt_time_model <- glmmTMB(
@@ -147,6 +158,10 @@ trt_time_model <- glmmTMB(
 
 summary(trt_time_model)
 check_collinearity(trt_time_model)
+
+lm <- glmer(cbind(trt_visits, ctrl_visits) ~ 1 + (1 | batch_id) + (1 | location),  
+      data = trial_data, family = "binomial")
+summary(lm)
 
 # =============================== plots =====================================
 
@@ -167,8 +182,10 @@ ggplot(plot_data, aes(x = "Sodium arm", y = proportion)) +
     title = "First-choice preference for sodium-enriched arm"
   )
 
+trial_data$chose_trt_binary <- as.numeric(trial_data$chose_trt)
+
 trial_data %>%
-  ggplot(aes(x = "", y = chose_trt)) +
+  ggplot(aes(x = "", y = chose_trt_binary)) +
   geom_jitter(height = 0) +
   stat_summary(fun.data = "mean_cl_boot")
 
