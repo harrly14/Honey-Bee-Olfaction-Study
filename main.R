@@ -6,6 +6,7 @@ library(performance)
 library(MuMIn)
 library(glmmTMB)
 library(DHARMa)
+library(tidyr)
 
 trial_data <- read.csv("trial_data.csv")
 collection_data <- read.csv("collection_data.csv")
@@ -200,8 +201,21 @@ plotResiduals(sim_visits, form = trial_data$location)
 # =============================== plots =====================================
 
 ggplot(trial_data, aes(x = "", y = chose_trt)) +
-  geom_jitter(height = 0) +
-  stat_summary(fun.data = "mean_cl_boot")
+  geom_jitter(aes(color = factor(chose_trt)), height = 0, width = 0.1, alpha = 0.4, size = 2) +
+  stat_summary(fun.data = "mean_cl_boot", color = "#2C5F8A", size = 0.8) + 
+  scale_color_manual(values = c("0" = "#D59C55", "1" = "#558ed5")) +
+  labs(
+    x = NULL,
+    y = "Proportion Choosing Treatment"
+  ) +
+  theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA),
+    legend.position = "none"
+  )
+
+ggsave("choice_plot.png", bg = "transparent")
 
 plot_data <- trial_data %>% 
   select(trial_ID, trt_time_secs, ctrl_time_secs, trt_visits, ctrl_visits) %>% 
@@ -212,8 +226,31 @@ plot_data <- trial_data %>%
     values_to = "value"
   )
 
-ggplot(plot_data, aes(x = arm, y = value)) + 
-  geom_boxplot() +
-  geom_point() + 
-  geom_line(aes(group = trial_ID), alpha = 0.1) +
-  facet_wrap(~ metric,scales = "free_y")
+ggplot(plot_data, aes(x = arm, y = value, color = arm, fill = arm)) + 
+  geom_boxplot(alpha = 0.5, width = 0.7, linewidth = 0.5) +
+  geom_point(position = position_jitter(width = 0.05, height = 0), alpha = 0.5) + 
+  geom_line(aes(group = trial_ID), alpha = 0.2, color = "grey") +
+  facet_wrap(~ metric, 
+             scales = "free_y",
+             labeller = as_labeller(c(
+               time_secs = "Time Spent (s)",
+               visits = "Number of Visits"
+             ))) + 
+  labs(
+    x = NULL,
+    y = NULL,
+    color = "Arm",
+    fill = "Arm"
+  ) + 
+  scale_color_manual(values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
+                     labels = c("Control", "Treatment")) +
+  scale_fill_manual(values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
+                    labels = c("Control", "Treatment")) +
+  scale_x_discrete(labels = c("ctrl" = "Control", "trt" = "Treatment")) +
+  theme(
+    plot.background = element_rect(fill = "transparent", color = NA),
+    legend.background = element_rect(fill = "transparent", color = NA),
+    legend.box.background = element_rect(fill = "transparent", color = NA)
+  )
+
+ggsave("plot.png", bg = "transparent")
