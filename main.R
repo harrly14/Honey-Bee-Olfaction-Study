@@ -5,6 +5,7 @@ library(lme4)
 library(performance)
 library(MuMIn)
 library(glmmTMB)
+library(DHARMa)
 
 trial_data <- read.csv("trial_data.csv")
 collection_data <- read.csv("collection_data.csv")
@@ -131,15 +132,21 @@ pref_glmm.full <- glmer(
   family = binomial, 
   na.action = "na.fail"
 )
-summary(pref_glmm.full)
-check_collinearity(pref_glmm.full)
+pref_glmm.best <- glmer(
+  chose_trt ~ 1 + 
+    (1 | batch_id) + (1 | location),  
+  data = trial_data, 
+  family = binomial, 
+  na.action = "na.fail"
+)
 
-# dharma of full model here
-
-pref_glmm.best <- get.models(dredge(pref_glmm.full), 1)[[1]]
-summary(pref_glmm.best)
-
-# dharma of best model here
+sim_pref <- simulateResiduals(pref_glmm.best)
+plot(sim_pref)
+testUniformity(sim_pref)
+testDispersion(sim_pref)
+testOutliers(sim_pref)
+plotResiduals(sim_pref, form = trial_data$batch_id)
+plotResiduals(sim_pref, form = trial_data$location)
 
 
 time_glmm.full <- glmmTMB(
@@ -149,15 +156,22 @@ time_glmm.full <- glmmTMB(
   family = beta_family(), 
   na.action = "na.fail"
 )
-summary(time_glmm.full)
-check_collinearity(time_glmm.full)
 
-# dharma of full model here
+time_glmm.best <- glmmTMB(
+  adj_prop_trt_time_secs ~ 1 + 
+    (1 | batch_id) + (1 | location),  
+  data = trial_data, 
+  family = beta_family(), 
+  na.action = "na.fail"
+)
 
-time_glmm.best <- get.models(dredge(time_glmm.full), 1)[[1]]
-summary(pref_glmm.best)
-
-# dharma of best model here
+sim_time <- simulateResiduals(time_glmm.best)
+plot(sim_time)
+testUniformity(sim_time)
+testDispersion(sim_time)
+testOutliers(sim_time)
+plotResiduals(sim_time, form = trial_data$batch_id)
+plotResiduals(sim_time, form = trial_data$location)
 
 
 visits_glmm.full <- glmer(cbind(trt_visits, ctrl_visits) ~ trt_arm + 
@@ -167,15 +181,21 @@ visits_glmm.full <- glmer(cbind(trt_visits, ctrl_visits) ~ trt_arm +
                           family = binomial, 
                           na.action = "na.fail"
 )
-summary(visits_glmm.full)
-check_collinearity(visits_glmm.full)
+visits_glmm.best <- glmer(cbind(trt_visits, ctrl_visits) ~ 1 + 
+                            (1 | batch_id) + (1 | location),  
+                          data = trial_data,
+                          family = binomial, 
+                          na.action = "na.fail"
+)
 
-# dharma of full model here
-
-visits_glmm.best <- get.models(dredge(time_glmm.full), 1)[[1]]
-summary(visits_glmm.best)
-
-# dharma of best model here
+sim_visits <- simulateResiduals(visits_glmm.best, n = 1000)
+plot(sim_visits)
+testUniformity(sim_visits)
+testDispersion(sim_visits)
+testOutliers(sim_visits)
+testZeroInflation(sim_visits)
+plotResiduals(sim_visits, form = trial_data$batch_id)
+plotResiduals(sim_visits, form = trial_data$location)
 
 # =============================== plots =====================================
 
