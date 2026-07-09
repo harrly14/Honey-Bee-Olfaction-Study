@@ -12,3 +12,7 @@ date,time,collectors,num_bees,species,location,flower,cage_id,parent_batch_id,no
 7/2/2026,9:50:00 AM,SCH,9,Apis mellifera,"42.4056579, -85.3954618",Monarda fistulosa,3,5,
 7/2/2026,10:27:00 AM,SCH,8,Apis mellifera,"42.4056579, -85.3954618",Monarda fistulosa,4,5,
 7/4/2026,12:10:00 AM,"SCH, RMB, CE",10,Apis mellifera,"42.3959980, -85.3816448",Asclepias syriaca,1,6,
+7/7/2026,9:12:00 AM,ALD,10,Apis mellifera,"42.3959980, -85.3816448",Asclepias syriaca,2,7,
+7/7/2026,9:24:00 AM,ALD,10,Apis mellifera,"42.3959980, -85.3816448",Asclepias syriaca,3,7,
+7/8/2026,10:22:00 AM,SCH,10,Apis mellifera,"42.401929, -85.380049",Cirsium arvense,4,8,
+7/8/2026,10:41:00 AM,SCH,10,Apis mellifera,"42.401929, -85.380049",Cirsium arvense,1,8,Not used
