@@ -2,8 +2,6 @@ library(lubridate)
 library(dplyr)
 library(ggplot2)
 library(lme4)
-library(performance)
-library(MuMIn)
 library(glmmTMB)
 library(DHARMa)
 library(tidyr)
@@ -84,7 +82,7 @@ trial_data <- trial_data |>
           ),
     prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs),
     # adjusted for beta regression
-    adj_prop_trt_time_secs = (prop_trt_time_secs * (nrow(trial_data) - 1) + 0.5) / n()
+    adj_prop_trt_time_secs = (prop_trt_time_secs * (n() - 1) + 0.5) / n()
   ) |>
   arrange(trial_start) |>
   tibble::rowid_to_column("trial_ID") |>
@@ -96,8 +94,8 @@ n <- nrow(trial_data)
 
 prop_chose_trt <- mean(trial_data$chose_trt)
 
-preference_binomial_test <- binom.test(x = sum(trial_data$chose_trt == TRUE),
-                                       n = nrow(trial_data),
+preference_binomial_test <- binom.test(x = sum(trial_data$chose_trt),
+                                       n = n,
                                        p = 0.5,
                                        alternative = "greater",
                                        conf.level = 0.95
@@ -111,7 +109,7 @@ time_in_arm_wilcox_test <- wilcox.test(trial_data$trt_time_secs,
 # ============================== models =====================================
 
 pref_glmm_full <- glmer(
-  chose_trt ~ trt_arm + start_date + time_of_day_hrs_z +
+  chose_trt ~ trt_arm + time_of_day_hrs_z +
     (1 | batch_id) + (1 | location),
   data = trial_data,
   family = binomial,
@@ -135,7 +133,7 @@ plotResiduals(sim_pref, form = as.factor(trial_data$location))
 
 
 time_glmm_full <- glmmTMB(
-  adj_prop_trt_time_secs ~ trt_arm + start_date + time_of_day_hrs_z +
+  adj_prop_trt_time_secs ~ trt_arm + time_of_day_hrs_z +
     (1 | batch_id) + (1 | location),
   data = trial_data,
   family = beta_family(),
@@ -160,7 +158,7 @@ plotResiduals(sim_time, form = as.factor(trial_data$location))
 
 
 visits_glmm_full <- glmer(cbind(trt_visits, ctrl_visits) ~ trt_arm +
-                            start_date + time_of_day_hrs_z +
+                            time_of_day_hrs_z +
                             (1 | batch_id) + (1 | location),
                           data = trial_data,
                           family = binomial,
