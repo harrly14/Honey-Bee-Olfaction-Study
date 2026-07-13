@@ -101,10 +101,13 @@ preference_binomial_test <- binom.test(x = sum(trial_data$chose_trt),
                                        conf.level = 0.95
                                        )
 
-time_in_arm_wilcox_test <- wilcox.test(trial_data$trt_time_secs,
+tim_wilcox_test <- wilcox.test(trial_data$trt_time_secs,
                                        trial_data$ctrl_time_secs,
                                        paired = TRUE
                                        )
+visits_wilcox_test <- wilcox.test(trial_data$trt_visits,
+                                  trial_data$ctrl_visits,
+                                  paired = TRUE)
 
 # ============================== models =====================================
 
