@@ -7,6 +7,7 @@ library(MuMIn)
 library(glmmTMB)
 library(DHARMa)
 library(tidyr)
+library(showtext)
 
 trial_data <- read.csv("trial_data.csv")
 collection_data <- read.csv("collection_data.csv")
@@ -147,7 +148,7 @@ testUniformity(sim_pref)
 testDispersion(sim_pref)
 testOutliers(sim_pref)
 plotResiduals(sim_pref, form = trial_data$batch_id)
-plotResiduals(sim_pref, form = trial_data$location)
+plotResiduals(sim_pref, form = as.factor(trial_data$location))
 
 
 time_glmm.full <- glmmTMB(
@@ -172,7 +173,7 @@ testUniformity(sim_time)
 testDispersion(sim_time)
 testOutliers(sim_time)
 plotResiduals(sim_time, form = trial_data$batch_id)
-plotResiduals(sim_time, form = trial_data$location)
+plotResiduals(sim_time, form = as.factor(trial_data$location))
 
 
 visits_glmm.full <- glmer(cbind(trt_visits, ctrl_visits) ~ trt_arm + 
@@ -196,26 +197,43 @@ testDispersion(sim_visits)
 testOutliers(sim_visits)
 testZeroInflation(sim_visits)
 plotResiduals(sim_visits, form = trial_data$batch_id)
-plotResiduals(sim_visits, form = trial_data$location)
+plotResiduals(sim_visits, form = as.factor(trial_data$location))
 
 # =============================== plots =====================================
 
-ggplot(trial_data, aes(x = "", y = chose_trt)) +
-  geom_jitter(aes(color = factor(chose_trt)), height = 0, width = 0.1, alpha = 0.4, size = 2) +
-  stat_summary(fun.data = "mean_cl_boot", color = "#2C5F8A", size = 0.8) + 
+font_add_google("Open Sans", "opensans")
+showtext_auto()
+showtext_opts(dpi = 600)
+
+choice_plot <- ggplot(
+  trial_data,
+  aes(x = "", y = chose_trt, color = factor(chose_trt))
+) +
+  geom_hline(yintercept = 0.5, linetype = 'dashed', col = 'red') +
+  geom_jitter(
+    aes(shape = factor(chose_trt)),
+    width = 0.3,
+    height = 0.0,
+    alpha = 0.6,
+    size = 4
+  ) +
+  stat_summary(
+    fun.data = "mean_cl_boot",
+    color = "#2C5F8A",
+    linewidth = 0.8
+  ) +
   scale_color_manual(values = c("0" = "#D59C55", "1" = "#558ed5")) +
   labs(
     x = NULL,
     y = "Proportion Choosing Treatment"
   ) +
+  theme_bw(base_size = 20, base_family = "opensans") +
   theme(
+    legend.position = "none",
     plot.background = element_rect(fill = "transparent", color = NA),
     legend.background = element_rect(fill = "transparent", color = NA),
-    legend.box.background = element_rect(fill = "transparent", color = NA),
-    legend.position = "none"
+    legend.box.background = element_rect(fill = "transparent", color = NA)
   )
-
-ggsave("choice_plot.png", bg = "transparent")
 
 plot_data <- trial_data %>% 
   select(trial_ID, trt_time_secs, ctrl_time_secs, trt_visits, ctrl_visits) %>% 
@@ -226,31 +244,68 @@ plot_data <- trial_data %>%
     values_to = "value"
   )
 
-ggplot(plot_data, aes(x = arm, y = value, color = arm, fill = arm)) + 
+base_plot <- ggplot(plot_data,aes(x = arm, y = value, color = arm, fill = arm)) +
   geom_boxplot(alpha = 0.5, width = 0.7, linewidth = 0.5) +
-  geom_point(position = position_jitter(width = 0.05, height = 0), alpha = 0.5) + 
+  geom_point(aes(shape = arm), position = position_jitter(width = 0.05, height = 0), alpha = 0.5) +
   geom_line(aes(group = trial_ID), alpha = 0.2, color = "grey") +
-  facet_wrap(~ metric, 
-             scales = "free_y",
-             labeller = as_labeller(c(
-               time_secs = "Time Spent (s)",
-               visits = "Number of Visits"
-             ))) + 
-  labs(
-    x = NULL,
-    y = NULL,
-    color = "Arm",
-    fill = "Arm"
-  ) + 
-  scale_color_manual(values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
-                     labels = c("Control", "Treatment")) +
-  scale_fill_manual(values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
-                    labels = c("Control", "Treatment")) +
+  labs(x = NULL, color = "Arm", fill = "Arm") +
+  scale_color_manual(
+    name = "Arm",
+    values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
+    labels = c("Control", "Treatment")
+  ) +
+  scale_fill_manual(
+    name = "Arm",
+    values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
+    labels = c("Control", "Treatment")
+  ) +
+  scale_shape_manual(
+    name = "Arm",
+    values = c("ctrl" = 16, "trt" = 17),
+    labels = c("Control", "Treatment")
+  ) +
   scale_x_discrete(labels = c("ctrl" = "Control", "trt" = "Treatment")) +
+  theme_bw(base_size = 20, base_family = "opensans") +
   theme(
     plot.background = element_rect(fill = "transparent", color = NA),
     legend.background = element_rect(fill = "transparent", color = NA),
     legend.box.background = element_rect(fill = "transparent", color = NA)
   )
 
-ggsave("plot.png", bg = "transparent")
+time_plot <-
+  base_plot +
+  filter(plot_data, metric == "time_secs") +
+  labs(y = "Time Spent (s)")
+
+visit_plot <-
+  base_plot +
+  filter(plot_data, metric == "visits") +
+  labs(y = "Number of Visits")
+
+ggsave(
+  "choice_plot.png",
+  choice_plot,
+  width = 9,
+  height = 7,
+  units = "in",
+  dpi = 600,
+  bg = "transparent"
+)
+ggsave(
+  "time_plot.png",
+  time_plot,
+  width = 6.75,
+  height = 5.25,
+  units = "in",
+  dpi = 600,
+  bg = "transparent"
+)
+ggsave(
+  "visit_plot.png",
+  visit_plot,
+  width = 6.75,
+  height = 5.25,
+  units = "in",
+  dpi = 600,
+  bg = "transparent"
+)
