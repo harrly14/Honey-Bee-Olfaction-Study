@@ -18,47 +18,33 @@ trial_data <- filter(trial_data, !is_excluded)
 
 # ========================== data processing ================================
 
-nrow(trial_data)
+parse_datetime <- function(date, time) {
+  as.POSIXct(paste(date, time), format = "%m/%d/%Y %I:%M:%S %p")
+}
 
 trial_data <- trial_data |>
-  filter(!is.na(start_date)) |>
   mutate(
     across(c(species, cage_id, batch_id, trt_arm, first_choice), as.factor),
 
-    starving_start = as.POSIXct(
-      paste(start_date, starving_since),
-      format = "%m/%d/%Y %I:%M:%S %p"
-      ),
-    trial_start = as.POSIXct(
-      paste(start_date, start_time),
-      format = "%m/%d/%Y %I:%M:%S %p"
-      ),
+    starving_start = parse_datetime(start_date, starving_since),
+    trial_start = parse_datetime(start_date, start_time),
 
     # i'm keeping start date as a factor for possible use in the model later
     start_date = as.factor(start_date),
 
-    latency = period_to_seconds(ms(latency)),
-    left_time = period_to_seconds(ms(left_time)),
-    right_time = period_to_seconds(ms(right_time)),
+    across(c(latency, left_time, right_time), \(x) period_to_seconds(ms(x))),
 
     starvation_duration_mins = as.numeric(difftime(trial_start,
                                                    starving_start,
                                                    units = "mins")),
     chose_trt = as.numeric(first_choice == trt_arm),
 
-  )
-trial_data <- trial_data |>
-  mutate(
     # replace L/R columns with trt/ctrl
     trt_visits = ifelse(trt_arm == "L", left_visits, right_visits),
     ctrl_visits = ifelse(trt_arm == "R", left_visits, right_visits),
     trt_time_secs = ifelse(trt_arm == "L", left_time, right_time),
-    ctrl_time_secs = ifelse(trt_arm == "R", left_time, right_time)
-  ) |>
-  # remove replaced columns
-  select(-starving_since, -start_time, -(left_visits:right_time))
-trial_data <- trial_data |>
-  mutate(
+    ctrl_time_secs = ifelse(trt_arm == "R", left_time, right_time),
+
     # batch num needs to be gotten from batch_id. e.g. "4a" -> "4"
     parent_batch_id = sub("^([0-9]+).*", "\\1", as.character(batch_id)),
     cage_id_char = as.character(cage_id),
@@ -78,35 +64,33 @@ trial_data <- trial_data |>
       mutate(
         batch_id_char = as.character(batch_id),
         pct_sodium_error = (target_sodium - actual_sodium) / target_sodium,
-        sodium_add_datetime = as.POSIXct(
-          paste(sodium_add_date, sodium_add_time),
-          format = "%m/%d/%Y %I:%M:%S %p"
-        )
+        sodium_add_datetime = parse_datetime(sodium_add_date, sodium_add_time),
       ) |>
       select(pct_sodium_error, batch_id_char, sodium_add_datetime),
     by = "batch_id_char"
-  )
-trial_data <- trial_data |>
+  ) |>
   mutate(
     time_since_sodium_added = as.numeric(difftime(trial_start,
                                                   sodium_add_datetime,
                                                   units = "mins")),
     time_of_day_hrs = hour(trial_start) + minute(trial_start) / 60,
-    ) |>
-  arrange(trial_start) |>
-  tibble::rowid_to_column("trial_ID") |>
-  mutate(
-    starvation_duration_mins_z = as.numeric(scale(starvation_duration_mins)),
-    temp_z = as.numeric(scale(temp)),
-    pct_sodium_error_z = as.numeric(scale(pct_sodium_error)),
-    time_since_sodium_added_z = as.numeric(scale(time_since_sodium_added)),
-    time_of_day_hrs_z = as.numeric(scale(time_of_day_hrs)),
+    across(c(starvation_duration_mins,
+             temp, pct_sodium_error,
+             time_since_sodium_added,
+             time_of_day_hrs
+             ),
+           \(x) as.numeric(scale(x)),
+           .names = "{.col}_z"
+          ),
     prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs),
     # adjusted for beta regression
-    adj_prop_trt_time_secs = (prop_trt_time_secs * (nrow(trial_data) - 1) + 0.5) / nrow(trial_data)
-  )
+    adj_prop_trt_time_secs = (prop_trt_time_secs * (nrow(trial_data) - 1) + 0.5) / n()
+  ) |>
+  arrange(trial_start) |>
+  tibble::rowid_to_column("trial_ID") |>
+  select(-starving_since, -start_time, -(left_visits:right_time))
 
-nrow(trial_data) # should match pre-join row count
+n <- nrow(trial_data)
 
 # ========================== stat tests ====================================
 
