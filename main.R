@@ -101,7 +101,7 @@ preference_binomial_test <- binom.test(x = sum(trial_data$chose_trt),
                                        conf.level = 0.95
                                        )
 
-tim_wilcox_test <- wilcox.test(trial_data$trt_time_secs,
+time_wilcox_test <- wilcox.test(trial_data$trt_time_secs,
                                        trial_data$ctrl_time_secs,
                                        paired = TRUE
                                        )
@@ -126,13 +126,13 @@ pref_glmm_best <- glmer(
   na.action = "na.fail"
 )
 
-sim_pref <- simulateResiduals(pref_glmm_best)
-plot(sim_pref)
-testUniformity(sim_pref)
-testDispersion(sim_pref)
-testOutliers(sim_pref)
-plotResiduals(sim_pref, form = trial_data$batch_id)
-plotResiduals(sim_pref, form = as.factor(trial_data$location))
+# sim_pref <- simulateResiduals(pref_glmm_best)
+# plot(sim_pref)
+# testUniformity(sim_pref)
+# testDispersion(sim_pref)
+# testOutliers(sim_pref)
+# plotResiduals(sim_pref, form = trial_data$batch_id)
+# plotResiduals(sim_pref, form = as.factor(trial_data$location))
 
 
 time_glmm_full <- glmmTMB(
@@ -151,13 +151,13 @@ time_glmm_best <- glmmTMB(
   na.action = "na.fail"
 )
 
-sim_time <- simulateResiduals(time_glmm_best)
-plot(sim_time)
-testUniformity(sim_time)
-testDispersion(sim_time)
-testOutliers(sim_time)
-plotResiduals(sim_time, form = trial_data$batch_id)
-plotResiduals(sim_time, form = as.factor(trial_data$location))
+# sim_time <- simulateResiduals(time_glmm_best)
+# plot(sim_time)
+# testUniformity(sim_time)
+# testDispersion(sim_time)
+# testOutliers(sim_time)
+# plotResiduals(sim_time, form = trial_data$batch_id)
+# plotResiduals(sim_time, form = as.factor(trial_data$location))
 
 
 visits_glmm_full <- glmer(cbind(trt_visits, ctrl_visits) ~ trt_arm +
@@ -174,14 +174,14 @@ visits_glmm_best <- glmer(cbind(trt_visits, ctrl_visits) ~ 1 +
                           na.action = "na.fail"
 )
 
-sim_visits <- simulateResiduals(visits_glmm_best, n = 1000)
-plot(sim_visits)
-testUniformity(sim_visits)
-testDispersion(sim_visits)
-testOutliers(sim_visits)
-testZeroInflation(sim_visits)
-plotResiduals(sim_visits, form = trial_data$batch_id)
-plotResiduals(sim_visits, form = as.factor(trial_data$location))
+# sim_visits <- simulateResiduals(visits_glmm_best, n = 1000)
+# plot(sim_visits)
+# testUniformity(sim_visits)
+# testDispersion(sim_visits)
+# testOutliers(sim_visits)
+# testZeroInflation(sim_visits)
+# plotResiduals(sim_visits, form = trial_data$batch_id)
+# plotResiduals(sim_visits, form = as.factor(trial_data$location))
 
 # =============================== plots =====================================
 
@@ -192,7 +192,11 @@ showtext_opts(dpi = 600)
 choice_plot <- ggplot(
   trial_data,
   aes(x = "", y = chose_trt, color = factor(chose_trt))
-) +
+  ) +
+  labs(
+    x = NULL,
+    y = NULL
+  ) +
   geom_hline(yintercept = 0.5, linetype = "dashed", col = "red") +
   geom_jitter(
     aes(shape = factor(chose_trt)),
@@ -207,11 +211,7 @@ choice_plot <- ggplot(
     linewidth = 0.8
   ) +
   scale_color_manual(values = c("0" = "#D59C55", "1" = "#558ed5")) +
-  labs(
-    x = NULL,
-    y = "Proportion Choosing Treatment"
-  ) +
-  theme_bw(base_size = 20, base_family = "opensans") +
+  theme_classic(base_size = 35, base_family = "opensans") +
   theme(
     legend.position = "none",
     plot.background = element_rect(fill = "transparent", color = NA),
@@ -243,24 +243,23 @@ base_plot <- ggplot(
   scale_color_manual(
     name = "Arm",
     values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
-    labels = c("Control", "Treatment")
+    labels = c("Control", "Salty")
   ) +
   scale_fill_manual(
     name = "Arm",
     values = c("ctrl" = "#D59C55", "trt" = "#558ed5"),
-    labels = c("Control", "Treatment")
+    labels = c("Control", "Salty")
   ) +
   scale_shape_manual(
     name = "Arm",
     values = c("ctrl" = 16, "trt" = 17),
-    labels = c("Control", "Treatment")
+    labels = c("Control", "Salty")
   ) +
-  scale_x_discrete(labels = c("ctrl" = "Control", "trt" = "Treatment")) +
-  theme_bw(base_size = 20, base_family = "opensans") +
+  scale_x_discrete(labels = c("ctrl" = "Control", "trt" = "Salty")) +
+  theme_classic(base_size = 35, base_family = "opensans") +
   theme(
     plot.background = element_rect(fill = "transparent", color = NA),
-    legend.background = element_rect(fill = "transparent", color = NA),
-    legend.box.background = element_rect(fill = "transparent", color = NA)
+    legend.position = "none"
   )
 
 time_plot <-
@@ -276,7 +275,6 @@ visit_plot <-
 ggsave(
   "choice_plot.png",
   choice_plot,
-  width = 9,
   height = 7,
   units = "in",
   dpi = 600,
@@ -285,8 +283,8 @@ ggsave(
 ggsave(
   "time_plot.png",
   time_plot,
-  width = 6.75,
-  height = 5.25,
+  height = 8,
+  width = 7,
   units = "in",
   dpi = 600,
   bg = "transparent"
@@ -294,8 +292,8 @@ ggsave(
 ggsave(
   "visit_plot.png",
   visit_plot,
-  width = 6.75,
-  height = 5.25,
+  height = 8,
+  width = 7,
   units = "in",
   dpi = 600,
   bg = "transparent"
