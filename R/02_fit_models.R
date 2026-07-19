@@ -65,6 +65,10 @@ visits_glmm_best <- glmer(cbind(trt_visits, ctrl_visits) ~ 1 +
                           na.action = "na.fail"
 )
 
+choice_results <- "best model here"
+time_results <- "best model here"
+visits_results <- "best model here"
+
 # ==============================================================================
 dir.create(here::here("results"), showWarnings = FALSE, recursive = TRUE)
 

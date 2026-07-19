@@ -66,13 +66,21 @@ base_plot <- ggplot(
                     plot_data,
                     aes(x = arm, y = value, color = arm, fill = arm)
                     ) +
-  geom_boxplot(alpha = 0.5, width = 0.7, linewidth = 0.5) +
+  geom_boxplot(
+    alpha = 0.5,
+    width = 0.7,
+    linewidth = 0.5,
+    outlier.shape = NA) +
   geom_point(
              aes(shape = arm), 
              position = position_jitter(width = 0.05, height = 0),
              alpha = 0.5
              ) +
-  geom_line(aes(group = trial_ID), alpha = 0.2, color = "grey") +
+  geom_line(aes(group = trial_ID), 
+            alpha = 0.2, 
+            color = "grey",
+            linewidth = 0.5
+            ) +
   scale_color_manual(
     name = "Arm",
     values = arm_colors,
@@ -132,3 +140,4 @@ ggsave(
   dpi = 600,
   bg = "transparent"
 )
+
