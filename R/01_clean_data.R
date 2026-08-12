@@ -8,9 +8,9 @@ library(lubridate)
 library(dplyr)
 library(tidyr)
 
-trial_data <- read.csv(here::here("data", "trial_data.csv"))
-collection_data <- read.csv(here::here("data", "collection_data.csv"))
-batch_data <- read.csv(here::here("data", "batch_data.csv"))
+trial_data <- read.csv(here::here("data", "full_trial_data.csv"))
+collection_data <- read.csv(here::here("data", "full_collection_data.csv"))
+batch_data <- read.csv(here::here("data", "full_batch_data.csv"))
 
 exclusion_rate <- mean(trial_data$is_excluded)
 trial_data <- filter(trial_data, !is_excluded)
@@ -23,7 +23,7 @@ parse_datetime <- function(date, time) {
 
 trial_data <- trial_data |>
   mutate(
-    across(c(species, cage_id, batch_id, trt_arm, first_choice), as.factor),
+    across(c(species, cage_id, batch_id, trt_arm, first_choice, sodium_level), as.factor),
 
     starving_start = parse_datetime(start_date, starving_since),
     trial_start = parse_datetime(start_date, start_time),
