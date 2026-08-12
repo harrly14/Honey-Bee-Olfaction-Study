@@ -10,7 +10,7 @@ model_results <- readRDS(here::here("results", "model_results.rds"))
 trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 
 # ------------------------------------------------------------------------------
-sim_choice <- simulateResiduals(model_results$choice$best_model)
+sim_choice <- simulateResiduals(model_results$choice$best)
 plot(sim_choice)
 testUniformity(sim_choice)
 testDispersion(sim_choice)
@@ -19,7 +19,7 @@ plotResiduals(sim_choice, form = trial_data$batch_id)
 plotResiduals(sim_choice, form = as.factor(trial_data$location))
 
 # ------------------------------------------------------------------------------
-sim_time <- simulateResiduals(model_results$time$best_model)
+sim_time <- simulateResiduals(model_results$time$best)
 plot(sim_time)
 testUniformity(sim_time)
 testDispersion(sim_time)
@@ -28,7 +28,7 @@ plotResiduals(sim_time, form = trial_data$batch_id)
 plotResiduals(sim_time, form = as.factor(trial_data$location))
 
 # ------------------------------------------------------------------------------
-sim_visits <- simulateResiduals(model_results$visits$best_model, n = 1000)
+sim_visits <- simulateResiduals(model_results$visits$best)
 plot(sim_visits)
 testUniformity(sim_visits)
 testDispersion(sim_visits)

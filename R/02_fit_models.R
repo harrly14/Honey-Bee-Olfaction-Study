@@ -10,71 +10,66 @@
 # Outputs results/model_results.rds, results/model_comparison_tables.txt
 # ==============================================================================
 
-library(lme4)
 library(glmmTMB)
 library(MuMIn)
 library(dplyr)
 
 trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 
-# model comparisons and selection here!! old code pasted below
+# Each response variable gets the same set of 8 candidate models:
+# - null: no fixed effects
+# - only starvation_time_z
+# - only trt_arm
+# - only salt_concentration
+# - starv+arm
+# - starv+salt
+# - arm+salt
+# - full
+# glmmTMB must be used for time preference, because glmer does not support
+# beta_family, so it has been used for all the models over glmer for consistency
+fit_candidates <- function(response_var, data, family) {
+  create_formula <- function(fixed_effects) {
+    as.formula(paste(response_var, "~", fixed_effects, "+ (1|parent_batch_id)"))
+  }
+  models <- list(
+    null = glmmTMB(formula = create_formula("1"), data = data, family = family, na.action = "na.fail"),
+    starv = glmmTMB(formula = create_formula("starvation_time_z"), data = data, family = family, na.action = "na.fail"),
+    arm = glmmTMB(formula = create_formula("trt_arm"), data = data, family = family, na.action = "na.fail"),
+    salt = glmmTMB(formula = create_formula("salt_concentration"), data = data, family = family, na.action = "na.fail"),
+    starv_arm  = glmmTMB(formula = create_formula("starvation_time_z + trt_arm"), data = data, family = family, na.action = "na.fail"),
+    starv_salt = glmmTMB(formula = create_formula("starvation_time_z + salt_concentration"), data = data, family = family, na.action = "na.fail"),
+    arm_salt = glmmTMB(formula = create_formula("trt_arm + salt_concentration"), data = data, family = family, na.action = "na.fail"),
+    full = glmmTMB(formula = create_formula("starvation_time_z + trt_arm + salt_concentration"), data = data, family = family, na.action = "na.fail")
+  )
 
+  selection_table <- model.sel(models)
+  
+  # best model should be the one with the best AICc
+  # OR the simplest model with a delta AIC <= 2 to the best model
+  model_options <- filter(as.data.frame(selection_table), delta <= 2)
+  # 'df' represents the parameter count. because the table is already sorted by
+  # AICc, the first match picks the simplest model with the best AICc
+  best_model_name <- rownames(model_options)[which.min(model_options$df)]
 
-choice_glmm_full <- glmer(
-  chose_trt ~ trt_arm + time_of_day_hrs_z +
-    (1 | batch_id) + (1 | location),
-  data = trial_data,
-  family = binomial,
-  na.action = "na.fail"
+  # append selection table and best model
+  c(models, list(selection_table = selection_table, best = models[[best_model_name]]))
+}
+
+choice_results <- fit_candidate_models(
+  "chose_trt", data = trial_data, family = binomial
 )
-choice_glmm_best <- glmer(
-  chose_trt ~ 1 +
-    (1 | batch_id) + (1 | location),
-  data = trial_data,
-  family = binomial,
-  na.action = "na.fail"
+time_results <- fit_candidate_models(
+  "adj_prop_trt_time_secs", data = trial_data, family = beta_family()
+)
+visits_results <- fit_candidate_models(
+  "cbind(trt_visits, ctrl_visits)", data = trial_data, family = binomial
 )
 
-time_glmm_full <- glmmTMB(
-  adj_prop_trt_time_secs ~ trt_arm + time_of_day_hrs_z +
-    (1 | batch_id) + (1 | location),
-  data = trial_data,
-  family = beta_family(),
-  na.action = "na.fail"
-)
-
-time_glmm_best <- glmmTMB(
-  adj_prop_trt_time_secs ~ 1 +
-    (1 | batch_id) + (1 | location),
-  data = trial_data, 
-  family = beta_family(),
-  na.action = "na.fail"
-)
-
-visits_glmm_full <- glmer(cbind(trt_visits, ctrl_visits) ~ trt_arm +
-                            time_of_day_hrs_z +
-                            (1 | batch_id) + (1 | location),
-                          data = trial_data,
-                          family = binomial,
-                          na.action = "na.fail"
-)
-visits_glmm_best <- glmer(cbind(trt_visits, ctrl_visits) ~ 1 +
-                            (1 | batch_id) + (1 | location),
-                          data = trial_data,
-                          family = binomial,
-                          na.action = "na.fail"
-)
-
-choice_results <- "best model here"
-time_results <- "best model here"
-visits_results <- "best model here"
-
-# ==============================================================================
 dir.create(here::here("results"), showWarnings = FALSE, recursive = TRUE)
 
 saveRDS(
-    list(choice = choice_results, time = time_results, visits = visits_results),
-    here::here("results", "model_results.rds")
+  list(choice = choice_results, time = time_results, visits = visits_results),
+  here::here("results", "model_results.rds")
 )
 
 message("Model results saved and written to results/")
