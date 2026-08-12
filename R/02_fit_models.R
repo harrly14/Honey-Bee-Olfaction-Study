@@ -18,9 +18,9 @@ trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 
 # Each response variable gets the same set of 8 candidate models:
 # - null: no fixed effects
-# - only starvation_time_z
+# - only starvation_duration_mins_z
 # - only trt_arm
-# - only salt_concentration
+# - only sodium_level
 # - starv+arm
 # - starv+salt
 # - arm+salt
@@ -33,13 +33,13 @@ fit_candidates <- function(response_var, data, family) {
   }
   models <- list(
     null = glmmTMB(formula = create_formula("1"), data = data, family = family, na.action = "na.fail"),
-    starv = glmmTMB(formula = create_formula("starvation_time_z"), data = data, family = family, na.action = "na.fail"),
+    starv = glmmTMB(formula = create_formula("starvation_duration_mins_z"), data = data, family = family, na.action = "na.fail"),
     arm = glmmTMB(formula = create_formula("trt_arm"), data = data, family = family, na.action = "na.fail"),
-    salt = glmmTMB(formula = create_formula("salt_concentration"), data = data, family = family, na.action = "na.fail"),
-    starv_arm  = glmmTMB(formula = create_formula("starvation_time_z + trt_arm"), data = data, family = family, na.action = "na.fail"),
-    starv_salt = glmmTMB(formula = create_formula("starvation_time_z + salt_concentration"), data = data, family = family, na.action = "na.fail"),
-    arm_salt = glmmTMB(formula = create_formula("trt_arm + salt_concentration"), data = data, family = family, na.action = "na.fail"),
-    full = glmmTMB(formula = create_formula("starvation_time_z + trt_arm + salt_concentration"), data = data, family = family, na.action = "na.fail")
+    salt = glmmTMB(formula = create_formula("sodium_level"), data = data, family = family, na.action = "na.fail"),
+    starv_arm  = glmmTMB(formula = create_formula("starvation_duration_mins_z + trt_arm"), data = data, family = family, na.action = "na.fail"),
+    starv_salt = glmmTMB(formula = create_formula("starvation_duration_mins_z + sodium_level"), data = data, family = family, na.action = "na.fail"),
+    arm_salt = glmmTMB(formula = create_formula("trt_arm + sodium_level"), data = data, family = family, na.action = "na.fail"),
+    full = glmmTMB(formula = create_formula("starvation_duration_mins_z + trt_arm + sodium_level"), data = data, family = family, na.action = "na.fail")
   )
 
   selection_table <- model.sel(models)
@@ -55,13 +55,13 @@ fit_candidates <- function(response_var, data, family) {
   c(models, list(selection_table = selection_table, best = models[[best_model_name]]))
 }
 
-choice_results <- fit_candidate_models(
+choice_results <- fit_candidates(
   "chose_trt", data = trial_data, family = binomial
 )
-time_results <- fit_candidate_models(
+time_results <- fit_candidates(
   "adj_prop_trt_time_secs", data = trial_data, family = beta_family()
 )
-visits_results <- fit_candidate_models(
+visits_results <- fit_candidates(
   "cbind(trt_visits, ctrl_visits)", data = trial_data, family = binomial
 )
 
