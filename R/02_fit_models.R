@@ -51,6 +51,8 @@ fit_candidates <- function(response_var, data, family) {
   # AICc, the first match picks the simplest model with the best AICc
   best_model_name <- rownames(model_options)[which.min(model_options$df)]
 
+  message(sprintf("Best model selected for %s: %s", response_var, best_model_name))
+  
   # append selection table and best model
   c(models, list(selection_table = selection_table, best = models[[best_model_name]]))
 }
