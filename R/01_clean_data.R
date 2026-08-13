@@ -83,8 +83,6 @@ trial_data <- trial_data |>
           .names = "{.col}_z"
           ),
     prop_trt_time_secs = trt_time_secs / (trt_time_secs + ctrl_time_secs),
-    # adjusted for beta regression
-    adj_prop_trt_time_secs = (prop_trt_time_secs * (n() - 1) + 0.5) / n()
   ) |>
   arrange(trial_start) |>
   tibble::rowid_to_column("trial_ID") |>

@@ -61,7 +61,7 @@ choice_results <- fit_candidates(
   "chose_trt", data = trial_data, family = binomial
 )
 time_results <- fit_candidates(
-  "adj_prop_trt_time_secs", data = trial_data, family = beta_family()
+  "prop_trt_time_secs", data = trial_data, family = ordbeta()
 )
 visits_results <- fit_candidates(
   "cbind(trt_visits, ctrl_visits)", data = trial_data, family = binomial
