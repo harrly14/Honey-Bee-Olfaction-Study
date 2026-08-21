@@ -43,7 +43,7 @@ fit_candidates <- function(response_var, data, family) {
   )
 
   selection_table <- model.sel(models)
-  
+
   # best model should be the one with the best AICc
   # OR the simplest model with a delta AIC <= 2 to the best model
   model_options <- filter(as.data.frame(selection_table), delta <= 2)
@@ -51,23 +51,23 @@ fit_candidates <- function(response_var, data, family) {
   # AICc, the first match picks the simplest model with the best AICc
   best_model_name <- rownames(model_options)[which.min(model_options$df)]
 
-  message(sprintf("Best model selected for %s: %s", response_var, best_model_name))
-  
   # append selection table and best model
-  c(models, list(selection_table = selection_table, best = models[[best_model_name]]))
+  c(
+    models,
+    list(
+      selection_table = selection_table,
+      best = models[[best_model_name]],
+      best_model_name = best_model_name))
 }
 
-choice_results <- fit_candidates(
-  "chose_trt", data = trial_data, family = binomial
-)
-time_results <- fit_candidates(
-  "prop_trt_time_secs", data = trial_data, family = ordbeta()
-)
-visits_results <- fit_candidates(
-  "cbind(trt_visits, ctrl_visits)", data = trial_data, family = binomial
-)
+choice_results <- fit_candidates("chose_trt", data = trial_data, family = binomial)
+message(sprintf("Best model selected for chose_trt: %s", choice_results$best_model_name))
 
-dir.create(here::here("results"), showWarnings = FALSE, recursive = TRUE)
+time_results <- fit_candidates("prop_trt_time_secs", data = trial_data, family = ordbeta())
+message(sprintf("Best model selected for prop_trt_time_secs: %s", time_results$best_model_name))
+
+visits_results <- fit_candidates("cbind(trt_visits, ctrl_visits)", data = trial_data, family = binomial)
+message(sprintf("Best model selected for cbind(trt_visits, ctrl_visits): %s", visits_results$best_model_name))
 
 saveRDS(
   list(choice = choice_results, time = time_results, visits = visits_results),
