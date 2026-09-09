@@ -29,7 +29,7 @@ trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
 # beta_family, so it has been used for all the models over glmer for consistency
 fit_candidates <- function(response_var, data, family) {
   create_formula <- function(fixed_effects) {
-    as.formula(paste(response_var, "~", fixed_effects, "+ (1|parent_batch_id)"))
+    as.formula(paste(response_var, "~", fixed_effects, "+ (1|start_date)"))
   }
   models <- list(
     null = glmmTMB(formula = create_formula("1"), data = data, family = family, na.action = "na.fail"),
