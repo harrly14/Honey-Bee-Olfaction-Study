@@ -114,9 +114,9 @@ choice_confint <- plogis(confint(choice_model, parm = "beta_", method = "wald"))
 time_confint <- plogis(confint(time_model,   parm = "beta_", method = "wald"))
 visits_confint <- plogis(confint(visits_model, parm = "beta_", method = "wald"))
 
-message("Choice proportion: ", round(choice_prop, 3))
-message("Time proportion: ", round(time_prop, 3))
-message("Visits proportion: ", round(visits_prop, 3))
+message("Choice proportion: ", round(choice_prop, 2))
+message("Time proportion: ", round(time_prop, 2))
+message("Visits proportion: ", round(visits_prop, 2))
 message(
   "Choice: estimate = ", round(choice_est, 3),
   ", 95% CI [", round(choice_confint[1, 1], 3),
