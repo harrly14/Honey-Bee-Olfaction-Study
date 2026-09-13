@@ -118,19 +118,19 @@ message("Choice proportion: ", round(choice_prop, 2))
 message("Time proportion: ", round(time_prop, 2))
 message("Visits proportion: ", round(visits_prop, 2))
 message(
-  "Choice: estimate = ", round(choice_est, 3),
+  "Choice: estimate = ", round(choice_est, 2),
   ", 95% CI [", round(choice_confint[1, 1], 3),
   ", ", round(choice_confint[1, 2], 3), "]"
 )
 
 message(
-  "Time: estimate = ", round(time_est, 3),
+  "Time: estimate = ", round(time_est, 2),
   ", 95% CI [", round(time_confint[1, 1], 3),
   ", ", round(time_confint[1, 2], 3), "]"
 )
 
 message(
-  "Visits: estimate = ", round(visits_est, 3),
+  "Visits: estimate = ", round(visits_est, 2),
   ", 95% CI [", round(visits_confint[1, 1], 3),
   ", ", round(visits_confint[1, 2], 3), "]"
 )
