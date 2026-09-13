@@ -1,8 +1,23 @@
+# ==============================================================================
+# 
+# ==============================================================================
+
 library(dplyr)
 library(tidyr)
 library(tibble)
 library(knitr)
 
+# descriptive stats
+trial_data <- readRDS(here::here("data", "processed", "trial_data_clean.rds"))
+choice_prop <- mean(trial_data$chose_trt, na.rm = TRUE)
+time_prop <- mean(trial_data$prop_trt_time_secs, na.rm = TRUE)
+visits_prop <- sum(trial_data$trt_visits, na.rm = TRUE) / sum(
+  trial_data$trt_visits + trial_data$ctrl_visits,
+  na.rm = TRUE
+)
+
+
+# make model selection table
 model_results <- readRDS(here::here("results", "model_results.rds"))
 
 make_model_table <- function(results, response_name) {
@@ -80,17 +95,36 @@ markdown_table <- knitr::kable(
 markdown_table
 
 
+# selected model stats
 choice_model <- model_results$choice$best
 time_model <- model_results$time$best
 visits_model <- model_results$visits$best
 
-# get confints (back transformed)
+choice_est <- plogis(summary(choice_model)$coefficients$cond["(Intercept)", "Estimate"])
+time_est <- plogis(summary(time_model)$coefficients$cond["(Intercept)", "Estimate"])
+visits_est <- plogis(summary(visits_model)$coefficients$cond["(Intercept)", "Estimate"])
+
 choice_confint <- plogis(confint(choice_model, parm = "beta_", method = "wald"))
 time_confint <- plogis(confint(time_model,   parm = "beta_", method = "wald"))
 visits_confint <- plogis(confint(visits_model, parm = "beta_", method = "wald"))
 
+message("Choice proportion: ", round(choice_prop, 3))
+message("Time proportion: ", round(time_prop, 3))
+message("Visits proportion: ", round(visits_prop, 3))
+message(
+  "Choice: estimate = ", round(choice_est, 3),
+  ", 95% CI [", round(choice_confint[1, 1], 3),
+  ", ", round(choice_confint[1, 2], 3), "]"
+)
 
-# get p values
-choice_pvalues <- summary(choice_model)$coefficients$cond[, "Pr(>|z|)"]
-time_pvalues <- summary(time_model)$coefficients$cond[, "Pr(>|z|)"]
-visits_pvalues <- summary(visits_model)$coefficients$cond[, "Pr(>|z|)"]
+message(
+  "Time: estimate = ", round(time_est, 3),
+  ", 95% CI [", round(time_confint[1, 1], 3),
+  ", ", round(time_confint[1, 2], 3), "]"
+)
+
+message(
+  "Visits: estimate = ", round(visits_est, 3),
+  ", 95% CI [", round(visits_confint[1, 1], 3),
+  ", ", round(visits_confint[1, 2], 3), "]"
+)
