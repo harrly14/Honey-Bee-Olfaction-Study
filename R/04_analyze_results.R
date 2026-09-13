@@ -1,5 +1,11 @@
 # ==============================================================================
-# 
+# Summarizes the fitted candidate models and produces the numerical results
+# used in the manuscript, including:
+# - proportions for choice, time, and visits
+# - AICc model-selection tables for each response variable
+# - selected-model estimates and 95% confidence intervals
+# Requires 01_clean_data.R and 02_fit_models.R to have been run.
+# Uses data/processed/trial_data_clean.rds and results/model_results.rds.
 # ==============================================================================
 
 library(dplyr)
