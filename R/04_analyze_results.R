@@ -120,7 +120,7 @@ report_result <- function(label, res) {
     label, ": estimate = ", round(res$est, 2),
     ", 95% CI [", round(res$lower, 3), ", ", round(res$upper, 3), "]",
     ", z = ", round(res$z, 2),
-    ", p = ", signif(res$p, 3)
+    ", p = ", signif(res$p, 2)
   )
 }
 
