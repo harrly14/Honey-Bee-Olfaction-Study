@@ -162,12 +162,12 @@ base_plot <- ggplot(
   )
 
 # panel B: Time Plot
-time_plot <- base_plot %+% 
+time_plot <- base_plot +
   filter(plot_data, metric == "time_secs") +
   labs(y = "Time Spent (s)")
 
 # panel C: Visit Plot
-visit_plot <- base_plot %+% 
+visit_plot <- base_plot +
   filter(plot_data, metric == "visits") +
   labs(y = "Number of Visits")
 
