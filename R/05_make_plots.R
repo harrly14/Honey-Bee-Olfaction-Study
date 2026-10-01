@@ -21,12 +21,17 @@ sim_time   <- simulateResiduals(model_results$time$best)
 sim_visits <- simulateResiduals(model_results$visits$best)
 
 # Output Figure 1
-png(here::here("plots", "Figure1_DHARMa_Checks.png"), 
+png(here::here("plots", "FigureS3_DHARMa_Checks.png"), 
     width = 10, height = 12, units = "in", res = 600)
 
 par(mfrow = c(3, 2), mar = c(4, 4, 6, 2))
 
-plotQQunif(sim_choice)
+plotQQunif(
+  sim_choice,
+  testUniformity = FALSE,
+  testOutliers = FALSE,
+  testDispersion = FALSE
+)
 mtext(
   "A: First Choice Preference",
   side = 3,
@@ -37,7 +42,11 @@ mtext(
 )
 plotResiduals(sim_choice)
 
-plotQQunif(sim_time)
+plotQQunif(sim_time,
+  testUniformity = FALSE,
+  testOutliers = FALSE,
+  testDispersion = FALSE
+)
 mtext(
   "B: Proportion of Time",
   side = 3,
@@ -48,7 +57,11 @@ mtext(
 )
 plotResiduals(sim_time)
 
-plotQQunif(sim_visits)
+plotQQunif(sim_visits,
+  testUniformity = FALSE,
+  testOutliers = FALSE,
+  testDispersion = FALSE
+)
 mtext(
   "C: Number of Visits",
   side = 3,
