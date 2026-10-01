@@ -27,18 +27,15 @@ visits_prop <- sum(trial_data$trt_visits, na.rm = TRUE) / sum(
 model_results <- readRDS(here::here("results", "model_results.rds"))
 
 make_model_table <- function(results, response_name) {
-
   results$selection_table |>
     as.data.frame() |>
     rownames_to_column("Model name") |>
-
     select(
       `Model name`,
       delta,
       logLik,
       df
     ) |>
-
     # Best-supported model first
     arrange(delta) |>
     mutate(
@@ -100,37 +97,37 @@ markdown_table <- knitr::kable(
 )
 markdown_table
 
-
 # selected model stats
-choice_model <- model_results$choice$best
-time_model <- model_results$time$best
-visits_model <- model_results$visits$best
+get_intercept <- function(model) {
+  coefs <- summary(model)$coefficients$cond["(Intercept)", ]
+  ci <- plogis(confint(model, parm = "beta_", method = "wald"))
+  data.frame(
+    est   = plogis(coefs[["Estimate"]]),
+    lower = ci[1, 1],
+    upper = ci[1, 2],
+    z     = coefs[["z value"]],
+    p     = coefs[["Pr(>|z|)"]]
+  )
+}
 
-choice_est <- plogis(summary(choice_model)$coefficients$cond["(Intercept)", "Estimate"])
-time_est <- plogis(summary(time_model)$coefficients$cond["(Intercept)", "Estimate"])
-visits_est <- plogis(summary(visits_model)$coefficients$cond["(Intercept)", "Estimate"])
+choice_res <- get_intercept(model_results$choice$best)
+time_res   <- get_intercept(model_results$time$best)
+visits_res <- get_intercept(model_results$visits$best)
 
-choice_confint <- plogis(confint(choice_model, parm = "beta_", method = "wald"))
-time_confint <- plogis(confint(time_model,   parm = "beta_", method = "wald"))
-visits_confint <- plogis(confint(visits_model, parm = "beta_", method = "wald"))
+# print results
+report_result <- function(label, res) {
+  message(
+    label, ": estimate = ", round(res$est, 2),
+    ", 95% CI [", round(res$lower, 3), ", ", round(res$upper, 3), "]",
+    ", z = ", round(res$z, 2),
+    ", p = ", signif(res$p, 3)
+  )
+}
 
 message("Choice proportion: ", round(choice_prop, 2))
 message("Time proportion: ", round(time_prop, 2))
 message("Visits proportion: ", round(visits_prop, 2))
-message(
-  "Choice: estimate = ", round(choice_est, 2),
-  ", 95% CI [", round(choice_confint[1, 1], 3),
-  ", ", round(choice_confint[1, 2], 3), "]"
-)
 
-message(
-  "Time: estimate = ", round(time_est, 2),
-  ", 95% CI [", round(time_confint[1, 1], 3),
-  ", ", round(time_confint[1, 2], 3), "]"
-)
-
-message(
-  "Visits: estimate = ", round(visits_est, 2),
-  ", 95% CI [", round(visits_confint[1, 1], 3),
-  ", ", round(visits_confint[1, 2], 3), "]"
-)
+report_result("Choice", choice_res)
+report_result("Time", time_res)
+report_result("Visits", visits_res)
