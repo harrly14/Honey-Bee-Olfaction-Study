@@ -114,11 +114,30 @@ choice_res <- get_intercept(model_results$choice$best)
 time_res   <- get_intercept(model_results$time$best)
 visits_res <- get_intercept(model_results$visits$best)
 
+# for second paragraph stats about sodium level's impact
+get_sodium <- function(model) {
+  coefs <- summary(model)$coefficients$cond
+  row <- grep("sodium", rownames(coefs), ignore.case = TRUE)
+  est <- coefs[row, "Estimate"]
+  se  <- coefs[row, "Std. Error"]
+  data.frame(
+    est   = est,
+    lower = est - 1.96 * se,
+    upper = est + 1.96 * se,
+    z     = coefs[row, "z value"],
+    p     = coefs[row, "Pr(>|z|)"]
+  )
+}
+
+choice_sodium <- get_sodium(model_results$choice$salt)
+time_sodium   <- get_sodium(model_results$time$salt)
+visits_sodium <- get_sodium(model_results$visits$salt)
+
 # print results
-report_result <- function(label, res) {
+report_result <- function(label, res, stat = "estimate") {
   message(
-    label, ": estimate = ", round(res$est, 2),
-    ", 95% CI [", round(res$lower, 3), ", ", round(res$upper, 3), "]",
+    label, ": ", stat, " = ", round(res$est, 2),
+    ", 95% CI [", round(res$lower, 2), ", ", round(res$upper, 2), "]",
     ", z = ", round(res$z, 2),
     ", p = ", signif(res$p, 2)
   )
@@ -127,7 +146,11 @@ report_result <- function(label, res) {
 message("Choice proportion: ", round(choice_prop, 2))
 message("Time proportion: ", round(time_prop, 2))
 message("Visits proportion: ", round(visits_prop, 2))
-
+message("\nBest model estimates:")
 report_result("Choice", choice_res)
 report_result("Time", time_res)
 report_result("Visits", visits_res)
+message("\nSodium estimates:")
+report_result("Choice", choice_sodium, stat = "beta")
+report_result("Time", time_sodium, stat = "beta")
+report_result("Visits", visits_sodium, stat = "beta")
